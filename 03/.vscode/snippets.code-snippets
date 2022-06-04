@@ -22,5 +22,19 @@
 			"$0"
 		],
 		"description": "Snippet for quickly dumping into Register."
+	},
+	"Register Shortcut": {
+		"prefix": "r1",
+		"body": [
+			"Register(in=in, load=dm$1, out=r$1);",
+		],
+		"description": "Snippet for quickly dumping into RAM8."
+	},
+	"RAM8 Shortcut": {
+		"prefix": "r8",
+		"body": [
+			"RAM8(in=in, load=dm$1, address=address[0..2], out=r$1);",
+		],
+		"description": "Snippet for quickly dumping into RAM64."
 	}
 }
