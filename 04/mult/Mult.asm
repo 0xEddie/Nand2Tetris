@@ -15,13 +15,41 @@
 // Computes RAM[2] = RAM[0] * RAM[1]
 // Usage: Store values >= 0 in R0 and R1
 
-// PSUEDOCODE
-    i = 1
-    prod = 0
-LOOP:
-    if (i > R0) goto STOP
-    prod = prod + R1
-    i = i + 1
-    goto LOOP
-STOP:
-    R2 = prod
+//     i = 1
+    @i
+    M=1
+//     prod = 0
+    @prod
+    M=0
+// LOOP:
+(LOOP)
+//     if (i > R0) goto STOP
+    @i
+    D=M
+    @R0
+    D=D-M // i-R0
+    @STOP // A = STOP
+    D;JGT // if D>0, jump to A
+//     prod = prod + R1
+    @prod
+    D=M
+    @R1
+    D=D+M
+    @prod
+    M=D
+//     i = i + 1
+    @i
+    M=M+1
+//     goto LOOP
+    @LOOP
+    0;JMP
+// STOP:
+(STOP)
+//     R2 = prod
+    @prod
+    D=M
+    @R2
+    M=D
+(END)
+    @END
+    0;JMP
