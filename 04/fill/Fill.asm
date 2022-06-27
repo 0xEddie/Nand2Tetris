@@ -44,10 +44,10 @@
 //   words in the current column
 // COLUMNINIT
 (COLUMNINIT)
-// if (i >= 256) goto LOOP
+// if (i >= rows) goto LOOP
     @i
     D=M
-    @256
+    @rows
     D=D-A
     @LOOP
     D;JGE // if D>=0, goto LOOP
@@ -55,7 +55,7 @@
     @column
     D=A
     @i
-    D=D+A // D = *column[i]
+    D=D+A // D = *column[0+i]
     @R0
     M=D
     @SCREEN
@@ -80,42 +80,109 @@
 // LOOP
 (LOOP)
 // if (RAM[KBD] == 0) goto KEYUP
+    @KBD
+    D=M
+    @KEYUP
+    D;JEQ
 // else goto KEYDOWN
 
 // KEYDOWN
+(KEYDOWN)
 // -check if cursor at end of row
 // if (cursor == @end) goto LOOP, else not end of row
+    @cursor
+    D=A
+    @end
+    D=D-A
+    @LOOP
+    D;JEQ
 // -blacken current column
 // i = 0
+    @i
+    M=0
 // -iterate through column, darkening each word:
 // COLORCOL
+(COLORCOL)
 // if (i >= 256) goto NEXTCOL
-// RAM[column[i]] = -1
-// column[i]++
+    @i
+    D=M
+    @rows
+    D=D-M
+    @NEXTCOL
+    D;JGE
+// RAM[*{column[i]}] = -1
+    @i
+    D=M
+    @column
+    A=D+A // A = *column[i]
+    A=M
+    M=-1
+// *{column[i]}++
+    @column
+    A=D+A
+    M=M+1
 // i++
+    @i
+    M=M+1
 // goto COLORCOL
+    @COLORCOL
+    0;JMP
 
 // NEXTCOL
 // -move cursor to next column
 // cursor++
+    @cursor
+    M=M+1
 // goto LOOP
+    @LOOP
+    0;JMP
 
 // KEYUP
 // -check if cursor at start of line
 // if (cursor == @SCREEN) goto LOOP, else not start of row
+    @SCREEN
+    D=A
+    @cursor
+    D=D-M
+    @LOOP
+    D;JEQ
 // -move cursor to prev column
 // cursor--
+    @cursor
+    M=M-1
 // i=0
+    @i
+    M=0
 // -iterate through column, clearing each word:
 // CLEARCOL
+(CLEARCOL)
 // if (i >= 256) goto PREVCOL?2
 // if (i >= 256) goto LOOP?1
+    @rows
+    D=M
+    @i
+    D=D-M
+    @LOOP
+    D;JLE
 // RAM[column[i]] = 0
+    @i
+    D=M
+    @column
+    A=D+A
+    A=M
+    M=0
 // column[i]--
+    @column
+    A=D+A
+    M=M-1
 // i++
+    @i
+    M=M=1
 // goto CLEARCOL
+    @CLEARCOL
+    0;JMP
 
 // PREVCOL?2
 // goto LOOP?2
-@LOOP
-0;JMP
+// @LOOP
+// 0;JMP
