@@ -38,4 +38,19 @@ CHIP CPU {
 
     PARTS:
     // Put your code here:
+        Mux16(a=instruction, b=aluo, sel=instruction[15], out=mux1o);
+        ARegister(in=mux1o, load=instruction[5], out=arego);
+        Mux16(a=arego, b=inM, sel=instruction[12], out=mux2o);
+        ALU(x=mux2o, y=drego, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=aluo, out=outM, zr=zr, ng=ng);
+        DRegister(in=aluo, load=instruction[4], out=drego);
+        PC(in=arego, load=jump, inc=1, reset=reset, out[0..15]=pc);
+        // jump
+        // JEQ
+        And(a=instruction[1], b=zr, out=jeq);
+        // JGT
+        Not(in=ng, out=notng);
+        Not(in=zr, out=notzr);
+        And(a=notng, b=notzr, out=notzrng);
+        And(a=notzrng, b=instruction[0], out=jgt);
+        
 }
