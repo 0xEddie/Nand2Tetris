@@ -43,8 +43,9 @@ CHIP CPU {
         Mux16(a=arego, b=inM, sel=instruction[12], out=mux2o);
         ALU(x=mux2o, y=drego, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=aluo, out=outM, zr=zr, ng=ng);
         DRegister(in=aluo, load=instruction[4], out=drego);
-        PC(in=arego, load=jump, inc=1, reset=reset, out[0..15]=pc);
-        // jump
+        PC(in=arego, load=jump, inc=true, reset=reset, out[0..14]=pc);
+        
+        // JUMP
         // JEQ
         And(a=instruction[1], b=zr, out=jeq);
         // JGT
@@ -52,5 +53,17 @@ CHIP CPU {
         Not(in=zr, out=notzr);
         And(a=notng, b=notzr, out=notzrng);
         And(a=notzrng, b=instruction[0], out=jgt);
-        
+        // JLT
+        And(a=instruction[2], b=ng, out=jlt);
+        // JNE
+        And(a=instruction[2], b=instruction[0], out=and1);
+        And(a=and1, b=notzr, out=jne);
+        // JMP
+        And(a=and1, b=instruction[1], out=jmp);
+
+        Or(a=jeq, b=jgt, out=jge);
+        Or(a=jeq, b=jlt, out=jle);
+        Or(a=jne, b=jmp, out=j3);
+        Or(a=jge, b=jle, out=j4);
+        Or(a=j3, b=j4, out=jump);
 }
