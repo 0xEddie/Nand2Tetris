@@ -61,7 +61,6 @@ CHIP CPU {
         // writeM
         And(a=instruction[3], b=instruction[15], out=writeM);
         
-        // JUMP
         // JLT
         And(a=instruction[2], b=ng, out=jlt);
         // JEQ
@@ -70,17 +69,9 @@ CHIP CPU {
         Or(a=zr, b=ng, out=lteq);
         Not(in=lteq, out=pos);
         And(a=pos, b=instruction[0], out=jgt);
-        // JNE
-        // And(a=instruction[2], b=instruction[0], out=and1);
-        // And(a=and1, b=notzr, out=jne);
-        // // JMP
-        // And(a=and1, b=instruction[1], out=jmp);
 
+        // JUMP
         Or(a=jeq, b=jgt, out=jge);
-        // Or(a=jeq, b=jlt, out=jle);
-        // Or(a=jne, b=jmp, out=j3);
-        // Or(a=jge, b=jle, out=j4);
-        // Or(a=j3, b=j4, out=jump);
         Or(a=jlt, b=jge, out=jumpIfC);
         And(a=jumpIfC, b=instruction[15], out=jump);
         // Program Counter
