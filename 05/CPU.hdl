@@ -38,32 +38,51 @@ CHIP CPU {
 
     PARTS:
     // Put your code here:
+        // A Register
         Mux16(a=instruction, b=aluo, sel=instruction[15], out=mux1o);
-        ARegister(in=mux1o, load=instruction[5], out=arego);
+        Not(in=instruction[15], out=notC);
+        Or(a=instruction[5], b=notC, out=loadA);
+        ARegister(in=mux1o, load=loadA, out=arego, out[0..14]=addressM);
+        // ALU
         Mux16(a=arego, b=inM, sel=instruction[12], out=mux2o);
-        ALU(x=mux2o, y=drego, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=aluo, out=outM, zr=zr, ng=ng);
-        DRegister(in=aluo, load=instruction[4], out=drego);
-        PC(in=arego, load=jump, inc=true, reset=reset, out[0..14]=pc);
+        ALU(x=drego, y=mux2o, 
+            zx=instruction[11], 
+            nx=instruction[10], 
+            zy=instruction[9], 
+            ny=instruction[8], 
+            f=instruction[7], 
+            no=instruction[6], 
+            out=aluo, out=outM, 
+            zr=zr, 
+            ng=ng);
+        // D Register
+        And(a=instruction[4], b=instruction[15], out=loadD);
+        DRegister(in=aluo, load=loadD, out=drego);
+        // writeM
+        And(a=instruction[3], b=instruction[15], out=writeM);
         
         // JUMP
+        // JLT
+        And(a=instruction[2], b=ng, out=jlt);
         // JEQ
         And(a=instruction[1], b=zr, out=jeq);
         // JGT
-        Not(in=ng, out=notng);
-        Not(in=zr, out=notzr);
-        And(a=notng, b=notzr, out=notzrng);
-        And(a=notzrng, b=instruction[0], out=jgt);
-        // JLT
-        And(a=instruction[2], b=ng, out=jlt);
+        Or(a=zr, b=ng, out=lteq);
+        Not(in=lteq, out=pos);
+        And(a=pos, b=instruction[0], out=jgt);
         // JNE
-        And(a=instruction[2], b=instruction[0], out=and1);
-        And(a=and1, b=notzr, out=jne);
-        // JMP
-        And(a=and1, b=instruction[1], out=jmp);
+        // And(a=instruction[2], b=instruction[0], out=and1);
+        // And(a=and1, b=notzr, out=jne);
+        // // JMP
+        // And(a=and1, b=instruction[1], out=jmp);
 
         Or(a=jeq, b=jgt, out=jge);
-        Or(a=jeq, b=jlt, out=jle);
-        Or(a=jne, b=jmp, out=j3);
-        Or(a=jge, b=jle, out=j4);
-        Or(a=j3, b=j4, out=jump);
+        // Or(a=jeq, b=jlt, out=jle);
+        // Or(a=jne, b=jmp, out=j3);
+        // Or(a=jge, b=jle, out=j4);
+        // Or(a=j3, b=j4, out=jump);
+        Or(a=jlt, b=jge, out=jumpIfC);
+        And(a=jumpIfC, b=instruction[15], out=jump);
+        // Program Counter
+        PC(in=arego, load=jump, inc=true, reset=reset, out[0..14]=pc);
 }
