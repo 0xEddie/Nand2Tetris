@@ -5,7 +5,7 @@ Write an Assembler program that translates programs written in the symbolic Hack
 # Deliverables
 
 [] Parse the symbolic command into its underlying fields
-[] For each field, generate the correstponding bits in the machine language
+[] For each field, generate the correstponding bits in machine language
 [] Replace all symbolic references with numeric addresses of memory locations
 [] Assemble the binary codes into a complete machine instruction
 
