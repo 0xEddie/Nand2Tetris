@@ -21,6 +21,8 @@ Write an Assembler program that translates programs written in the symbolic Hack
 3. _SymbolTable module_--handles symbols
 4. _main program_--drives the entire translation process
 
+# APIs
+
 ## _Parser_ Module Specification
 
 | Routine/ Method          | Arguments          | Returns                         | Function                                                                                                                                                 |
@@ -28,7 +30,7 @@ Write an Assembler program that translates programs written in the symbolic Hack
 | Constructor/ initializer | Input file/ stream | -                               | Opens the input file and gets ready to parse it.                                                                                                         |
 | hasMoreCommands          | -                  | bool                            | Are there more commands in the input (reached EOF)?                                                                                                      |
 | advance                  | -                  | -                               | Reads the next command from the input and makes it the current command. Only called if hasMoreCommands() is true. Initially there is no current command. |
-| commandType              | -                  | A_COMMAND, B_COMMAND, C_COMMAND | Returns the type of current command                                                                                                                      |
+| commandType              | -                  | A_COMMAND, C_COMMAND, L_COMMAND | Returns the type of current command                                                                                                                      |
 | symbol                   | -                  | string                          | Returns the symbol [or decimal xxx] of the current command @xxx [or xxx]. Called when commandType() is A_COMMAND or L_COMMAND.                           |
 | dest                     | -                  | string                          | Returns the 'dest' mnemonic in the current C-command. Called when commandType() is C_COMMAND.                                                            |
 | comp                     | -                  | string                          | Returns the 'comp' mnemonic in the current C-command. Called when commandType() is C_COMMAND.                                                            |
