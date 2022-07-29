@@ -5,6 +5,13 @@ Write an Assembler program that translates programs written in the symbolic Hack
 # Strategy
 
 1. Write an assembler that can only translate programs that contain no symbols
+   - all address commands of type '@xxx' are not symbols, only decimal numbers
+   - input file contains no label commands like '(LOOP)'
+   - open output file named after input file (input 'Prog.asm' -> output 'Prog.hack')
+   - for each C-instruction, concatenate the translated binary codes of the instruction fields into a single 16-bit word
+     - write this word into the output file
+   - for each A-instruction of type @xxx, translate the decimal constant returned by the parser into its binary representation
+     - write this 16-bit word into the output file
 2. Extend the assembler's functionality to handle symbols
 
 # Implementation
@@ -14,7 +21,7 @@ Write an Assembler program that translates programs written in the symbolic Hack
 3. _SymbolTable module_--handles symbols
 4. _main program_--drives the entire translation process
 
-## Parser API
+## _Parser_ Module Specification
 
 | Routine/ Method          | Arguments          | Returns                         | Function                                                                                                                                                 |
 | ------------------------ | ------------------ | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -26,3 +33,11 @@ Write an Assembler program that translates programs written in the symbolic Hack
 | dest                     | -                  | string                          | Returns the 'dest' mnemonic in the current C-command. Called when commandType() is C_COMMAND.                                                            |
 | comp                     | -                  | string                          | Returns the 'comp' mnemonic in the current C-command. Called when commandType() is C_COMMAND.                                                            |
 | jump                     | -                  | string                          | Returns the 'jump' mnemonic in the current C-command. Called when commandType() is C_COMMAND.                                                            |
+
+## _Code_ Module Specification
+
+| Routine/ Method | Arguments         | Returns | Function                                       |
+| --------------- | ----------------- | ------- | ---------------------------------------------- |
+| dest            | mnemonic (string) | 3 bits  | Returns the binary code of the 'dest' mnemonic |
+| comp            | mnemonic (string) | 7 bits  | Returns the binary code of the 'comp' mnemonic |
+| jump            | mnemonic (string) | 3 bits  | Returns the binary code of the 'jump' mnemonic |
