@@ -16,8 +16,16 @@ class Parser {
     }
     // write lines to output file
     try {
+      // append line to file if it is not whitespace or a comment
+      // regex for finding `//` at start of line
+      const reggy = /^\/{2}/;
+      // if str.trim().length===0, line is blank
       this.lines.forEach((line) => {
-        fs.appendFileSync(outputPath, `${line}\n`);
+        let isBlank;
+        ( line.trim().length === 0 | reggy.test(line) ) ? isBlank = false : isBlank = true;
+        if (isBlank) {
+          fs.appendFileSync(outputPath, `${line.trim()}\n`);
+        }
       });
     } catch (err) {
       console.log(err);
