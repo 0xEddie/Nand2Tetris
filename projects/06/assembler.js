@@ -31,7 +31,7 @@ class Parser {
   }
   
   hasMoreCommands() {
-    ( this.currentLineIdx < this.numberOfLines - 1 ) ? true : false;
+    return ( this.currentLineIdx < this.numberOfLines - 1 ) ? true : false;
   }
   
   advance() {
