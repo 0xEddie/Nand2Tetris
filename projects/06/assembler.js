@@ -56,6 +56,18 @@ class Parser {
     }
   }
   
+  symbol() {
+    const line = this.lines[this.lineIdx];
+    
+    switch (commandType()) {
+      case "A_COMMAND":
+        return line.slice(1);
+      case "L_COMMAND":
+        return line.slice(1,-1);
+    }
+  }
+  
+  
 }
 
 function main() {
@@ -66,6 +78,7 @@ function main() {
   while (parser.hasMoreCommands()) {
     advance()
   }
+  // const line = ['@2', 'D=A', '@3', 'D=D+A', '@0', 'M=D', '(LOOP)'];
 }
 
 main();
