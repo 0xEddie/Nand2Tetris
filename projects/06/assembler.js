@@ -31,7 +31,8 @@ class Parser {
   }
   
   hasMoreCommands() {
-    return ( this.lineIdx < this.numberOfLines - 1 ) ? true : false;
+    // check if current line index is at end of file
+    return ( this.lineIdx < this.numberOfLines - 1 );
   }
   
   advance() {
@@ -67,6 +68,31 @@ class Parser {
     }
   }
   
+  dest() {
+    const line = this.lines[this.lineIdx];
+    // check if `dest` is present in instruction
+    if (line.includes('=')) {
+      return line.slice(0, line.indexOf('='));
+    } else return null;
+  }
+  
+  comp() {
+    const line = this.lines[this.lineIdx];
+    // `comp` is either after `=` or before `;` in the instruction
+    if (line.includes('=')) {
+      return line.slice(line.indexOf('=') + 1);
+    } else {
+      return line.slice(0, line.indexOf(';'));
+    }
+  }
+  
+  jump() {
+    const line = this.lines[this.lineIdx];
+    // check if `jump` is present in instruction
+    if (line.includes(';')) {
+      return line.slice(line.indexOf(';') + 1);
+    } else return null;
+  }
   
 }
 
