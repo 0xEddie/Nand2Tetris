@@ -5,7 +5,7 @@ class Parser {
   constructor(inputPath) {
     
     // CLASS PROPERTIES
-    this.currentLineIdx = undefined;
+    this.lineIdx = undefined;
     this.numberOfLines = this.lines.length;
         
     // INPUT FILE MANAGEMENT
@@ -31,14 +31,31 @@ class Parser {
   }
   
   hasMoreCommands() {
-    return ( this.currentLineIdx < this.numberOfLines - 1 ) ? true : false;
+    return ( this.lineIdx < this.numberOfLines - 1 ) ? true : false;
   }
   
   advance() {
-    if (typeof(this.currentLineIdx) === undefined) {
-      this.currentLineIdx = 0;
-    } else this.currentLineIdx++;
+    if (typeof(this.lineIdx) === undefined) {
+      this.lineIdx = 0;
+    } else this.lineIdx++;
   }
+  
+  commandType() {
+    const line = this.lines[this.lineIdx];
+    // check if first char in line is `@`
+    if (line[0] == "@") {
+      return "A_COMMAND";
+    } 
+    // regex match to check if line enclosed in parentheses
+    else if (/^\(.*\)$/.test(line)) {
+      return "L_COMMAND";
+    } 
+    // otherwise it's a C_command
+    else {
+      return "C_COMMAND";
+    }
+  }
+  
 }
 
 function main() {
