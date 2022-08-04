@@ -43,3 +43,9 @@ Write an Assembler program that translates programs written in the symbolic Hack
 | dest            | mnemonic (string) | 3 bits  | Returns the binary code of the 'dest' mnemonic |
 | comp            | mnemonic (string) | 7 bits  | Returns the binary code of the 'comp' mnemonic |
 | jump            | mnemonic (string) | 3 bits  | Returns the binary code of the 'jump' mnemonic |
+
+# Notes
+- Input file in memory instead of streaming it line by line. It is easier to implement, but does limit the size of the files that can be assembled to the amount of RAM on the computer running the assembler (minus the resource requirements for the OS and runtime)
+
+## Out of Scope
+- Assembler does not check for correct syntax of input Hack assembly file, does not return errors.
