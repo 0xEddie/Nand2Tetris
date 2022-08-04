@@ -3,6 +3,10 @@ const fs = require("fs");
 
 class Parser {
   constructor(inputPath) {
+    
+    // CLASS PROPERTIES
+    this.currentLineIdx = undefined;
+    this.numberOfLines = this.lines.length;
         
     // INPUT FILE MANAGEMENT
     // grab file contents
@@ -24,14 +28,16 @@ class Parser {
       }
     });
     
-    // CLASS PROPERTIES
-    this.currentLineIdx = 0;
-    this.numberOfLines = this.lines.length;
-    
   }
   
   hasMoreCommands() {
     ( this.currentLineIdx < this.numberOfLines - 1 ) ? true : false;
+  }
+  
+  advance() {
+    if (typeof(this.currentLineIdx) === undefined) {
+      this.currentLineIdx = 0;
+    } else this.currentLineIdx++;
   }
 }
 
