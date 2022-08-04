@@ -2,41 +2,47 @@ const { argv } = require("node:process");
 const fs = require("fs");
 
 class Parser {
-  constructor(filePath) {
-    const contents = fs.readFileSync(filePath, "utf-8");
-    // split contents on line breaks -> '\r\n' on Windows, '\n\' on Unix
-    this.lines = contents.split(/\r?\n/);
+  constructor(inputPath) {
+        
+    // INPUT FILE MANAGEMENT
+    // grab file contents
+    const inputFile = fs.readFileSync(inputPath, "utf-8");
     // find output file path from input file path
-    const outputPath = `${filePath.slice(0, filePath.lastIndexOf("."))}.txt`;
+    // TODO change output file extension from .txt to .hack
+    const outputPath = `${inputPath.slice(0, inputPath.lastIndexOf("."))}.txt`;
     // create blank output file
-    try {
-      fs.writeFileSync(outputPath, "");
-    } catch (err) {
-      console.log(err);
-    }
-    // write lines to output file
-    try {
-      // append line to file if it is not whitespace or a comment
-      // regex for finding `//` at start of line
-      const reggy = /^\/{2}/;
-      // if str.trim().length===0, line is blank
-      this.lines.forEach((line) => {
-        let isBlank;
-        ( line.trim().length === 0 | reggy.test(line) ) ? isBlank = false : isBlank = true;
-        if (isBlank) {
-          fs.appendFileSync(outputPath, `${line.trim()}\n`);
-        }
-      });
-    } catch (err) {
-      console.log(err);
-    }
+    fs.writeFileSync(outputPath, "");
+
+    // regex for finding `//` at start of line
+    const reggy = /^\/{2}/;
+    // split contents on line breaks -> '\r\n' on Windows, '\n\' on Unix
+    // trim whitespace from start and end of line
+    // filter out lines containing only whitespace or comments
+    this.lines = inputFile.split(/\r?\n/).trim().filter( line => {
+      if ( !line.length === 0 && !reggy.test(line) ) {
+        return line;
+      }
+    });
+    
+    // CLASS PROPERTIES
+    this.currentLineIdx = 0;
+    this.numberOfLines = this.lines.length;
+    
+  }
+  
+  hasMoreCommands() {
+    ( this.currentLineIdx < this.numberOfLines - 1 ) ? true : false;
   }
 }
 
 function main() {
   // grab file path from commandline arguments
   const filePath = argv[2];
-  const myparser = new Parser(filePath);
+  const parser = new Parser(filePath);
+  
+  while (parser.hasMoreCommands()) {
+    advance()
+  }
 }
 
 main();
