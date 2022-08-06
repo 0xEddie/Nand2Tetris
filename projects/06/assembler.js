@@ -9,18 +9,21 @@ class Parser {
     const inputFile = fs.readFileSync(inputPath, "utf-8");
     // find output file path from input file path
     // TODO change output file extension from .txt to .hack
-    this.outputPath = `${inputPath.slice(0, inputPath.lastIndexOf("."))}.txt`;
+    this.outputPath = `${inputPath.slice(0, inputPath.lastIndexOf("."))}1.hack`;
     // create blank output file
     fs.writeFileSync(this.outputPath, "");
 
     // regex for finding `//` at start of line
     const reggy = /^\/{2}/;
+    let notBlank, notComment, line;
     // split contents on line breaks -> '\r\n' on Windows, '\n\' on Unix
     // trim whitespace from start and end of line
     // filter out lines containing only whitespace or comments
     this.lines = inputFile.split(/\r?\n/).filter( rawline => {
-      const line = rawline.trim();
-      if ( !line.length === 0 && !reggy.test(line) ) {
+      line = rawline.trim();
+      notBlank = !(line.length === 0);
+      notComment = !reggy.test(line);
+      if ( notBlank && notComment ) {
         return line;
       }
     });
@@ -33,11 +36,13 @@ class Parser {
   
   hasMoreCommands() {
     // check if current line index is at end of file
-    return ( this.lineIdx < this.numberOfLines - 1 );
+    if (this.lineIdx === undefined) {
+      return true;
+    } else return ( this.lineIdx < (this.numberOfLines - 1) );
   }
   
   advance() {
-    if (typeof(this.lineIdx) === undefined) {
+    if (this.lineIdx === undefined) {
       this.lineIdx = 0;
     } else this.lineIdx++;
   }
@@ -58,11 +63,11 @@ class Parser {
     }
   }
   
-  symbol() {
+  symbol(cmdType) {
     const line = this.lines[this.lineIdx];
     // based on command type, return symbol or decimal addr of current command
     
-    switch (commandType()) {
+    switch (cmdType) {
       case "A_COMMAND":
         return line.slice(1);
       case "L_COMMAND":
@@ -165,22 +170,25 @@ function main() {
   // grab file path from commandline arguments
   const filePath = argv[2];
   const parser = new Parser(filePath);
-  let line;
+  let line, cmdType;
   const code = new Code();
   
   while (parser.hasMoreCommands()) {
     // move to next command in file
-    advance()
-    
+    parser.advance()
+    cmdType = parser.commandType();
     // get fields of current command
     // translate instructions into binary
-    switch (parser.commandType()) {
+    switch (cmdType) {
       
       case "A_COMMAND":
         // parse instruction string into integer
         // convert decimal number to binary, then cast as string;
-        const value = parseInt(parser.symbol()).toString(2);
-        line = `0${value}`;
+        const value = parseInt(parser.symbol(cmdType)).toString(2);
+        line = `${value}`;
+        while (line.length < 16) {
+          line = `0${line}`;
+        }
         break;
         
       case "C_COMMAND":
@@ -196,8 +204,10 @@ function main() {
     
     // append new line to output file
     fs.appendFileSync(parser.outputPath, `${line}\n`);
+    // console.log(line);
   }
   // const line = ['@2', 'D=A', '@3', 'D=D+A', '@0', 'M=D', '(LOOP)'];
+  console.log(`File '${parser.outputPath}' assembled successfully.`)
 }
 
 main();
