@@ -44,6 +44,15 @@ Write an Assembler program that translates programs written in the symbolic Hack
 | comp            | mnemonic (string) | 7 bits  | Returns the binary code of the 'comp' mnemonic |
 | jump            | mnemonic (string) | 3 bits  | Returns the binary code of the 'jump' mnemonic |
 
+## _SymbolTable_ Module Specification
+
+| Routine | Arguments | Returns | Function |
+| - | - | - | - |
+| Constructor | - | - | Creates a new empty symbol table |
+| addEntry | symbol (string), address (int) | - | Adds the pair (`symbol, address`) to the table |
+| contains | symbol (string) | Boolean | Does the symbol table contain the given address? |
+| GetAddress | symbol (string) | int | Returns the address associated with the symbol |
+
 # Notes
 - Input file in memory instead of streaming it line by line. It is easier to implement, but does limit the size of the files that can be assembled to the amount of RAM on the computer running the assembler (minus the resource requirements for the OS and runtime)
 
