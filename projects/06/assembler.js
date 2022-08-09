@@ -1,5 +1,6 @@
 const { argv } = require("node:process");
 const fs = require("fs");
+const path = require("path");
 
 class Parser {
   constructor(inputPath) {
@@ -7,11 +8,15 @@ class Parser {
     // INPUT FILE MANAGEMENT
     // grab file contents
     const inputFile = fs.readFileSync(inputPath, "utf-8");
+    
     // find output file path from input file path
-    // TODO change output file extension from .txt to .hack
-    this.outputPath = `${inputPath.slice(0, inputPath.lastIndexOf("."))}1.hack`;
+    const dirname = path.dirname(inputPath);
+    const filename = path.basename(inputPath, path.extname(inputPath));
+    this.outputPath1 = path.join(dirname, `eo-${filename}.hack`);
+    this.outputPath2 = path.join('/mnt/c/Users/googl/Projects/nand2tetris/projects/06', dirname, `eo-${filename}.hack`);
     // create blank output file
-    fs.writeFileSync(this.outputPath, "");
+    fs.writeFileSync(this.outputPath1, "");
+    fs.writeFileSync(this.outputPath2, "");
 
     // regex for finding `//` at start of line
     const reggy = /^\/{2}/;
@@ -186,6 +191,7 @@ function main() {
         // convert decimal number to binary, then cast as string;
         const value = parseInt(parser.symbol(cmdType)).toString(2);
         line = `${value}`;
+        // pad MSB with '0' until word is 16 digits long
         while (line.length < 16) {
           line = `0${line}`;
         }
@@ -203,11 +209,11 @@ function main() {
     }
     
     // append new line to output file
-    fs.appendFileSync(parser.outputPath, `${line}\n`);
-    // console.log(line);
+    fs.appendFileSync(parser.outputPath1, `${line}\n`);
+    fs.appendFileSync(parser.outputPath2, `${line}\n`);
   }
   // const line = ['@2', 'D=A', '@3', 'D=D+A', '@0', 'M=D', '(LOOP)'];
-  console.log(`File '${parser.outputPath}' assembled successfully.`)
+  console.log(`File '${parser.outputPath1}' assembled successfully.`)
 }
 
 main();
