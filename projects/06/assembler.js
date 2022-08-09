@@ -18,19 +18,18 @@ class Parser {
     fs.writeFileSync(this.outputPath1, "");
     fs.writeFileSync(this.outputPath2, "");
 
-    // regex for finding `//` at start of line
-    const reggy = /^\/{2}/;
-    let notBlank, notComment, line;
+    let line;
+    this.lines = [];
     // split contents on line breaks -> '\r\n' on Windows, '\n\' on Unix
-    // trim whitespace from start and end of line
-    // filter out lines containing only whitespace or comments
-    this.lines = inputFile.split(/\r?\n/).filter( rawline => {
+    // push instructions onto `this.lines`
+    inputFile.split(/\r?\n/).forEach( rawline => {
+      // trim whitespace from start and end of line
       line = rawline.trim();
-      notBlank = !(line.length === 0);
-      notComment = !reggy.test(line);
-      if ( notBlank && notComment ) {
-        return line;
-      }
+      // remove comments
+      if (line.includes("//")) line = line.replace(/\s*\/{2}.*$/, "");
+      
+      // filter out lines containing only whitespace
+      if ( !(line.length === 0) ) this.lines.push(line);
     });
     
     // CLASS PROPERTIES
