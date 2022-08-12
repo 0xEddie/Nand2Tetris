@@ -170,6 +170,35 @@ class Code {
   }
 }
 
+class SymbolTable {
+  constructor() {
+    // No return value
+    // Creates new empty symbol table
+    this.symbols = {};
+  }
+  
+  addEntry (symbol, address) {
+    // symbol == string; address == int
+    // No return value
+    // Adds the pair (`symbol`, `address`) to the table
+    this.symbols[symbol] = address;
+  }
+  
+  contains (symbol) {
+    // symbol == string
+    // Returns boolean
+    // Does the symbol table contain the given symbol?
+    return this.symbols.hasOwnProperty(symbol);
+  }
+  
+  GetAddress (symbol) {
+    // symbol == string
+    // Returns int
+    // Returns the address associated with the symbol
+    return this.symbols[symbol];
+  }
+}
+
 function main() {
   // grab file path from commandline arguments
   const filePath = argv[2];
@@ -181,8 +210,7 @@ function main() {
     // move to next command in file
     parser.advance()
     cmdType = parser.commandType();
-    // get fields of current command
-    // translate instructions into binary
+    // get fields of current command then translate instructions into binary
     switch (cmdType) {
       
       case "A_COMMAND":
