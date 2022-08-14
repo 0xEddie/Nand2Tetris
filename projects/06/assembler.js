@@ -66,11 +66,11 @@ class Parser {
     }
   }
   
-  symbol(cmdType) {
+  symbol() {
     const line = this.lines[this.lineIdx];
     // returns symbolic or decimal addr of current command based on command type
     
-    switch (cmdType) {
+    switch (this.commandType()) {
       case "A_COMMAND":
         return line.slice(1);
       case "L_COMMAND":
@@ -254,7 +254,7 @@ function main() {
     // move to next command in file
     parser.advance();
     cmdType = parser.commandType();
-    symbol = parser.symbol(cmdType);
+    symbol = parser.symbol();
     
     switch (cmdType) {
       case "A_COMMAND":
