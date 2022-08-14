@@ -35,7 +35,6 @@ class Parser {
     
     // CLASS PROPERTIES
     this.lineIdx = undefined;
-    
   }
   
   hasMoreCommands() {
@@ -199,9 +198,7 @@ class SymbolTable {
       'SCREEN': 16384,
       'KBD': 24576
     };
-    
     this.nextAddress = 0;
-    
   }
   
   addEntry (symbol, address) {
@@ -245,49 +242,36 @@ function main() {
       // add L_COMMAND symbol to table, with a unique address
       line = parser.lines[parser.lineIdx].slice(1,-1);
       st.addEntry(line, st.nextAddress);
-      // st.addEntry(parser.lines[parser.lineIdx], st.romAddressCount + 15);
     }
   }
   // reset counters for 2nd pass
   parser.lineIdx = undefined;
   st.nextAddress = 16;
   
-  // ** SECOND PASS** - Add found variable symbols to symbol table
-  while (parser.hasMoreCommands()) {
-    // Check for A_COMMAND `@xxx`
-    // if `xxx` is not in the symbol table and not a number, add `xxx` to symbol table
-    parser.advance();
-    cmdType = parser.commandType();
-    symbol = parser.symbol(cmdType);
-    if ( cmdType === "A_COMMAND" && isNaN(parseInt(symbol)) ) {
-      // If variable symbol is not in the symbol table, add it to `st`
-      if ( !st.contains(symbol) ) {
-        st.addEntry(symbol, st.nextAddress);
-        st.nextAddress++;
-      }
-    }
-  }
-  parser.lineIdx = undefined;
   
   // ** MAIN LOOP ** - translate instructions into binary, write to output file
   while (parser.hasMoreCommands()) {
     // move to next command in file
     parser.advance();
     cmdType = parser.commandType();
-    // get fields of current command then translate instructions into binary
     symbol = parser.symbol(cmdType);
+    
     switch (cmdType) {
-      
       case "A_COMMAND":
-        // if `xxx` is variable symbol, then grab from symbol table
-        // if (isNaN(parseInt(symbol))) {
-          //   adr = st.GetAddress(symbol);
-          // }
+        // A-cmds are of format `@xxx` where `xxx` is an integer number or a variable symbol
+        // If cmd is a variable symbol, check if it already exists on the symbol table
+        // If `xxx` is not in the symbol table, and is not a number, add `xxx` to 
+        // symbol table then grab its address from the symbol table
+        // Otherwise its address is equal to its decimal value
+        if ( !st.contains(symbol) && isNaN(parseInt(symbol)) ) {
+            st.addEntry(symbol, st.nextAddress);
+            st.nextAddress++;
+            adr = st.GetAddress(symbol)
+        } else adr = symbol;
+        // if `xxx` is variable symbol, then grab it's address from symbol table
         (isNaN(parseInt(symbol))) ? adr = st.GetAddress(symbol) : adr = symbol;
         // parse instruction string into integer
         // convert decimal address (aka the instr int) to binary, then cast as string;
-        // const value = parseInt(symbol).toString(2);
-        // line = `${value}`;
         line = `${parseInt(adr).toString(2)}`;
         // pad MSB with '0' until word is 16 digits long
         while (line.length < 16) {
@@ -303,18 +287,17 @@ function main() {
         const jj = code.jump(parser.jump());
         
         line = `111${cc}${dd}${jj}`;
-        
         break;
     }
+    
+    // If A or C command, append new line to output file
     if (cmdType != "L_COMMAND") {
-      // append new line to output file
       fs.appendFileSync(parser.outputPath1, `${line}\n`);
       fs.appendFileSync(parser.outputPath2, `${line}\n`);
     }
-    
   }
-  // const line = ['@2', 'D=A', '@3', 'D=D+A', '@0', 'M=D', '(LOOP)'];
-  console.log(`File '${parser.outputPath1}' assembled successfully.`)
+  console.log(`File '${parser.outputPath1}' assembled successfully.`);
+  return 0;
 }
 
 main();
