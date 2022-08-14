@@ -258,9 +258,9 @@ function main() {
     // if `xxx` is not in the symbol table and not a number, add `xxx` to symbol table
     parser.advance();
     cmdType = parser.commandType();
-    if (cmdType === "A_COMMAND") {
+    symbol = parser.symbol(cmdType);
+    if ( cmdType === "A_COMMAND" && isNaN(parseInt(symbol)) ) {
       // If variable symbol is not in the symbol table, add it to `st`
-      symbol = parser.symbol(cmdType);
       if ( !st.contains(symbol) ) {
         st.addEntry(symbol, st.nextAddress);
         st.nextAddress++;
