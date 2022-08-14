@@ -5,14 +5,21 @@ Write an Assembler program that translates programs written in the symbolic Hack
 # Strategy
 
 1. Write an assembler that can only translate programs that contain no symbols
-   - all address commands of type '@xxx' are not symbols, only decimal numbers
-   - input file contains no label commands like '(LOOP)'
-   - open output file named after input file (input 'Prog.asm' -> output 'Prog.hack')
-   - for each C-instruction, concatenate the translated binary codes of the instruction fields into a single 16-bit word
-     - write this word into the output file
-   - for each A-instruction of type @xxx, translate the decimal constant returned by the parser into its binary representation
-     - write this 16-bit word into the output file
-2. Extend the assembler's functionality to handle symbols
+  - all address commands of type '@xxx' are not symbols, only decimal numbers
+  - input file contains no label commands like '(LOOP)'s
+  - open output file named after input file (input 'Prog.asm' -> output 'Prog.hack')
+  - for each C-instruction, concatenate the translated binary codes of the instruction fields into a single 16-bit word
+    - write this word into the output file
+  - for each A-instruction of type @xxx, translate the decimal constant returned by the parser into its binary representation
+    - write this 16-bit word into the output file
+2. Extend the assembler's functionality to handle symbols by passing through the input file two times
+  - First initialize the symbol table with all the pre-defined symbols and their respective pre-allocated RAM addresses
+  - Then go through the assembly program line by line
+    - If line is an A_COMMAND or C_COMMAND, increment a ROM address counter
+    - If line is a labal psuedocommand, pass the symbol into the symbol table with the ROM address counter
+  - Add second pass through logic to the main function
+    - For A_COMMANDS, if the value passed in is a value symbol (not a number), get its address from the symbol table
+    - If it isn't in the symbol table, then add it to the symbol table with a unique address
 
 # Implementation
 
