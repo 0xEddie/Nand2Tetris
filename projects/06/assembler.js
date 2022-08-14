@@ -4,8 +4,9 @@ const path = require("path");
 
 class Parser {
   constructor(inputPath) {
+    // read contents of input file, filter out whitespace and comments
+    // copy contents into `lines` array
     
-    // INPUT FILE MANAGEMENT
     // grab file contents
     const inputFile = fs.readFileSync(inputPath, "utf-8");
     
@@ -34,7 +35,6 @@ class Parser {
     
     // CLASS PROPERTIES
     this.lineIdx = undefined;
-    this.numberOfLines = this.lines.length;
     
   }
   
@@ -42,7 +42,7 @@ class Parser {
     // check if current line index is at end of file
     if (this.lineIdx === undefined) {
       return true;
-    } else return ( this.lineIdx < (this.numberOfLines - 1) );
+    } else return ( this.lineIdx < (this.lines.length - 1) );
   }
   
   advance() {
@@ -69,7 +69,7 @@ class Parser {
   
   symbol(cmdType) {
     const line = this.lines[this.lineIdx];
-    // based on command type, return symbol or decimal addr of current command
+    // returns symbolic or decimal addr of current command based on command type
     
     switch (cmdType) {
       case "A_COMMAND":
@@ -200,7 +200,7 @@ class SymbolTable {
       'KBD': 24576
     };
     
-    this.romAddresses = 0;
+    this.nextAddress = 0;
     
   }
   
@@ -227,31 +227,68 @@ class SymbolTable {
 }
 
 function main() {
+  let line, cmdType, symbol, adr;
   // grab file path from commandline arguments
   const filePath = argv[2];
   const parser = new Parser(filePath);
-  let line, cmdType;
   const code = new Code();
-  
-  // build symbol table
   const st = new SymbolTable();
-  // 
-  while (parser.hasMoreCommands()) {
-    
-  }
   
+  // ** FIRST PASS** - Add found labels to symbol table
+  while (parser.hasMoreCommands()) {
+    parser.advance();
+    // increment `romAddresses` every time A-cmd or C-cmd is encountered
+    cmdType = parser.commandType();
+    if (cmdType != 'L_COMMAND') {
+      st.nextAddress++;
+    } else {
+      // add L_COMMAND symbol to table, with a unique address
+      line = parser.lines[parser.lineIdx].slice(1,-1);
+      st.addEntry(line, st.nextAddress);
+      // st.addEntry(parser.lines[parser.lineIdx], st.romAddressCount + 15);
+    }
+  }
+  // reset counters for 2nd pass
+  parser.lineIdx = undefined;
+  st.nextAddress = 16;
+  
+  // ** SECOND PASS** - Add found variable symbols to symbol table
+  while (parser.hasMoreCommands()) {
+    // Check for A_COMMAND `@xxx`
+    // if `xxx` is not in the symbol table and not a number, add `xxx` to symbol table
+    parser.advance();
+    cmdType = parser.commandType();
+    if (cmdType === "A_COMMAND") {
+      // If variable symbol is not in the symbol table, add it to `st`
+      symbol = parser.symbol(cmdType);
+      if ( !st.contains(symbol) ) {
+        st.addEntry(symbol, st.nextAddress);
+        st.nextAddress++;
+      }
+    }
+  }
+  parser.lineIdx = undefined;
+  
+  // ** MAIN LOOP ** - translate instructions into binary, write to output file
   while (parser.hasMoreCommands()) {
     // move to next command in file
-    parser.advance()
+    parser.advance();
     cmdType = parser.commandType();
     // get fields of current command then translate instructions into binary
+    symbol = parser.symbol(cmdType);
     switch (cmdType) {
       
       case "A_COMMAND":
+        // if `xxx` is variable symbol, then grab from symbol table
+        // if (isNaN(parseInt(symbol))) {
+          //   adr = st.GetAddress(symbol);
+          // }
+        (isNaN(parseInt(symbol))) ? adr = st.GetAddress(symbol) : adr = symbol;
         // parse instruction string into integer
-        // convert decimal number to binary, then cast as string;
-        const value = parseInt(parser.symbol(cmdType)).toString(2);
-        line = `${value}`;
+        // convert decimal address (aka the instr int) to binary, then cast as string;
+        // const value = parseInt(symbol).toString(2);
+        // line = `${value}`;
+        line = `${parseInt(adr).toString(2)}`;
         // pad MSB with '0' until word is 16 digits long
         while (line.length < 16) {
           line = `0${line}`;
@@ -266,12 +303,15 @@ function main() {
         const jj = code.jump(parser.jump());
         
         line = `111${cc}${dd}${jj}`;
+        
         break;
     }
+    if (cmdType != "L_COMMAND") {
+      // append new line to output file
+      fs.appendFileSync(parser.outputPath1, `${line}\n`);
+      fs.appendFileSync(parser.outputPath2, `${line}\n`);
+    }
     
-    // append new line to output file
-    fs.appendFileSync(parser.outputPath1, `${line}\n`);
-    fs.appendFileSync(parser.outputPath2, `${line}\n`);
   }
   // const line = ['@2', 'D=A', '@3', 'D=D+A', '@0', 'M=D', '(LOOP)'];
   console.log(`File '${parser.outputPath1}' assembled successfully.`)
