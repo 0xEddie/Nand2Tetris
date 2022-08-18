@@ -14,6 +14,10 @@ Fully implement the `push` and `pop` commands, handling the eight memory stacks 
 2. Handle the `local`, `argument`, `this`, & `that` stacks
 3. Handle the `pointer` and `temp` segments, allowing modification of the bases of the `this` and `that` segments
 4. Handle the `static` segment
+## Notes
+- When starting to translate a VM command, generate and emit a comment (of the VM command) to the output assembly code stream for readability and debugging purposes.
+- Almost every VM command needs to push data onto and/or pop data off the stack, and therefore the `writeXxx` routines will need to output similar assembly instructions. Consider writing and using private routines (aka helper methods) to generate these frequently used code snippets.
+- It's recommended to end each machine language program with an infinite loop. Write a private method that is called once at the end of translating all the VM commands that appends an infinite loop code in assembly, to the output file.
 
 # Testing
 1. To get acquainted with the intended behavior of the supplied test program Xxx.vm, run it on the supplied VM emulator using the supplied XxxVME.tst script.
@@ -40,24 +44,24 @@ Fully implement the `push` and `pop` commands, handling the eight memory stacks 
 
 | Routine/ Method          | Arguments          | Returns                         | Function                                                                                                                                                 |
 | ------------------------ | ------------------ | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Constructor/ initializer | Input file/ stream | -                               | Opens the input file and gets ready to parse it.                                                                                                         |
-| hasMoreCommands          | -                  | bool                            | Are there more commands in the input (reached EOF)?                                                                                                      |
-| advance                  | -                  | -                               | Reads the next command from the input and makes it the current command. Only called if hasMoreCommands() is true. Initially there is no current command. |
-| commandType | - | C_ARITHMETIC, C_PUSH, C_POP, C_LABEL, C_GOTO, C_IF, C_FUNCTION, C_RETURN, C_CALL (constant) | Returns a constant representing the type of the current command. If the current command is arithemic or logical, returns C_ARITHEMTIC. |
-| arg1 | - | string | Returns the first argument of the current command. In the case of C_ARITHMETIC, the command itself (add, sub, etc.) is returned. Should not be called if the current command is C_RETURN. |
-| arg2 | - | int | Returns the second argument of the current command. Should only be called if the current command is C_PUSH, C_POP, C_FUNCTION or C_CALL. |
+| `Constructor/ initializer` | Input file/ stream | -                               | Opens the input file and gets ready to parse it.                                                                                                         |
+| `hasMoreCommands`          | -                  | bool                            | Are there more commands in the input (reached EOF)?                                                                                                      |
+| `advance`                  | -                  | -                               | Reads the next command from the input and makes it the current command. Only called if `hasMoreCommands()` is true. Initially there is no current command. |
+| `commandType` | - | `C_ARITHMETIC`, `C_PUSH`, `C_POP`, `C_LABEL`, `C_GOTO`, `C_IF`, `C_FUNCTION`, `C_RETURN`, `C_CALL` (constant) | Returns a constant representing the type of the current command. If the current command is arithemic or logical, returns `C_ARITHEMTIC`. |
+| `arg1` | - | string | Returns the first argument of the current command. In the case of `C_ARITHMETIC`, the command itself (add, sub, etc.) is returned. Should not be called if the current command is `C_RETURN`. |
+| `arg2` | - | int | Returns the second argument of the current command. Should only be called if the current command is `C_PUSH`, `C_POP`, `C_FUNCTION` or `C_CALL`. |
 
 ## _CodeWriter_ Module Specification
 
 | Routine/ Method | Arguments         | Returns | Function                                       |
 | --------------- | ----------------- | ------- | ---------------------------------------------- |
-| Constructor/ initializer | Output file/ stream | - | Opens an output file/ stream and gets ready to write into it. |
-| writeArithmetic | command (string) | - | Writes to the output file the assembly code that implements the given arithmetic-logical command. |
-| writePushPop | command (C_PUSH OR C_POP), segment (string), index (int) | - | Writes to the output file the assembly code that implements the given command. |
-| close | - | - | Closes the output file/ stream. |
+| `Constructor/ initializer` | Output file/ stream | - | Opens an output file/ stream and gets ready to write into it. |
+| `writeArithmetic` | command (string) | - | Writes to the output file the assembly code that implements the given arithmetic-logical command. |
+| `writePushPop` | command (`C_PUSH` OR `C_POP`), `segment` (string), `index` (int) | - | Writes to the output file the assembly code that implements the given command. |
+| `close` | - | - | Closes the output file/ stream. |
 
 # Notes
 - Input file in memory instead of streaming it line by line. It is easier to implement, but does limit the size of the files that can be assembled to the amount of RAM on the computer running the assembler (minus the resource requirements for the OS and runtime)
 
 ## Out of Scope
-- Assembler does not check for correct syntax of input Hack assembly file, does not return errors.
+- Translator does not check for correct syntax of input VM language file, does not return errors.
